@@ -1,14 +1,8 @@
 #Ruby client for Echonest API
-#  Supported Formats: json
-#  Supported Methods: 
-
 require "json"
 require "net/http"
 
-
-
-#todo: documents methods, get song hottness, documentation, organize files.
-#      put it on git hub. 
+#todo: add documents methods
 module Echonest
   VERSION = "v.1"
   BASE_URL =  'http://developer.echonest.com/api'
@@ -56,7 +50,6 @@ module Echonest
     SUB_MODULE = "artist"
      
     #Search for artist
-    #TODO: add buckets to search
     def Artist.search(options = {})
       accepted_params = [:results, :limit, :sort, :name, :description, :style, :mood, :rank_type, :fuzzy_match, :max_familiarity, :min_familiarity, :max_hotttnesss, :min_hotttnesss, :artist_start_year_before, :artist_end_year_before, :artist_start_year_after, :artist_end_year_after, :start, :bucket]
       params = {}
@@ -78,7 +71,6 @@ module Echonest
       artists_json = Utils.call_api(SUB_MODULE,"search", params)
       results = []
 
-      #convert json into artist objects
       if artists_json.has_key?('artists')
         if !params.has_key?(:bucket)
           artists_json['artists'].each do |artist|
@@ -104,7 +96,7 @@ module Echonest
       accepted_params = [:start, :results,:bucket,:limit]
       params = {}
       
-      #remove plural 'buckets'
+      #remove plural #'buckets'
       if options.has_key?(:buckets)
         options[:bucket] = options[:buckets]
         options.delete(:buckets)
@@ -193,7 +185,7 @@ module Echonest
       end
 
       
-      # note: accepts parameters as hash
+      #accepts parameters as hash
       def get_similar_artists(options={})
         accepted_params = [:results, :min_results, :limit, :sort, :style, :mood, :max_familiarity, :min_familiarity, :max_hotttnesss, :min_hotttnesss, :artist_start_year_before, :artist_end_year_before, :artist_start_year_after, :artist_end_year_after, :start, :bucket, :seed_catalog]
         params = {}
@@ -223,7 +215,7 @@ module Echonest
 
               params[:bucket].each { |bucket| tmp_artist.instance_variable_set("@#{bucket}", artist[bucket.to_s]) }
               @similar_artists.push(tmp_artist)
-            end #end for loop
+            end 
           else
             res_json['artists'].each { |artist| @similar_artists.push(Artist.new(name = artist["name"], id = artist["id"],[])) }
           end
@@ -241,7 +233,6 @@ module Echonest
       end
       
       #Returns hash of blogs/news about the artist from web. 
-      # TODO: split this into 2 methods.
       def get_documents(type, results = 15, start = 0, high_relevance = false)
         if type != "blogs" && type != "news" 
           raise "#{type} is not a valid document type"
@@ -252,7 +243,6 @@ module Echonest
         instance_variable_set("@#{type}", res_json["blogs"])
       end
 
-      # Returns list of artist's songs
       def get_songs(results = 15, start = 0)
         if @songs == nil || results != 15  || start > 0
           @songs = []          
@@ -274,7 +264,6 @@ module Echonest
         @songs
       end
 
-      #Returns artist twitter handle, or nil if no handle exists
       def get_twitter
         if @twitter == nil
           artist_json = get_attr("twitter",{})["artist"]
